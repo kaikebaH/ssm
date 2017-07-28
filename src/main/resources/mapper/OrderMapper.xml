@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kaikeba.app.dao.IOrderDao">
+
+    <resultMap id="orderMap" type="Order">
+        <id property="oid" column="oid"/>
+        <result property="ordertime" column="ordertime"/>
+        <result property="total" column="total"/>
+        <result property="status" column="status"/>
+        <result property="address" column="address"/>
+        <collection property="orderItemList" resultMap="com.kaikeba.app.dao.IOrderItemDao.orderItemMap"/>
+    </resultMap>
+
+    <select id="listOrderByUid" resultMap="orderMap">
+        SELECT * from t_order a INNER join t_orderitem b on a.oid = b.oid
+         WHERE a.uid = #{uid} limit #{startPage},#{pageSize}
+    </select>
+    <select id="getCountRowByUid" parameterType="string" resultType="int">
+        select count(*) from t_order where uid = #{uid}
+    </select>
+    <insert id="add" parameterType="Order">
+        INSERT into t_order values(#{order.oid},#{order.ordertime},#{order.total},#{order.status},#{order.address},#{order.user.uid})
+    </insert>
+    <insert id="saveOrderItem" parameterType="OrderItem">
+        INSERT into t_orderitem
+        values(#{orderItem.orderItemId}
+        ,#{orderItem.quantity},#{orderItem.subtotal},#{orderItem.book.bid},#{orderItem.bname}
+        ,#{orderItem.currPrice},#{orderItem.image_b},#{orderItem.order.oid})
+    </insert>
+    <select id="getOrderByOid" parameterType="string" resultType="Order">
+        select * from t_order where oid = #{oid};
+    </select>
+    <select id="getOrderItemByOid" parameterType="string" resultMap="com.kaikeba.app.dao.IOrderItemDao.orderItemMap">
+        select * from t_orderitem o INNER JOIN t_book b on o.bid = b.bid WHERE oid = #{oid};
+    </select>
+    <delete id="delOrderByOid" parameterType="string">
+        delete from t_order where oid = #{oid}
+    </delete>
+    <delete id="delOrderItemByOid" parameterType="string">
+        delete from t_orderitem where oid = #{oid}
+    </delete>
+    <update id="updateStatusByOid" parameterType="string">
+        update t_order set status = 4 WHERE oid = #{oid}
+    </update>
+    <update id="updateByOid">
+        update t_order set status = #{status} WHERE oid = #{oid}
+    </update>
+
+</mapper>

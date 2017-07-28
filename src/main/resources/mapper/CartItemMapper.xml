@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kaikeba.app.dao.ICartItemDao">
+    <resultMap id="cartItemMap" type="CartItem">
+        <id property="cartItemId" column="cartItemId"/>
+        <result property="quantity" column="quantity"/>
+        <result property="orderBy" column="orderBy"/>
+        <association property="book" resultMap="com.kaikeba.app.dao.IBookDao.bookMap"/>
+        <association property="user" resultMap="com.kaikeba.app.dao.IUserDao.userMap"/>
+    </resultMap>
+
+    <select id="getCartByUid" parameterType="string" resultMap="cartItemMap">
+        SELECT * from t_cartitem c INNER JOIN t_book b on c.bid = b.bid where uid = #{uid}
+    </select>
+    <select id="getCartItemByBidAndUid" resultType="CartItem">
+        select * from t_cartitem where bid = #{bid} and uid = #{uid};
+    </select>
+    <update id="updateQuantityByCartItemId" parameterType="string">
+        update t_cartitem set quantity = quantity + 1 WHERE cartItemId = #{cartItemId}
+    </update>
+    <insert id="addCart" parameterType="CartItem">
+        INSERT into t_cartitem values
+        (#{cartItem.cartItemId},#{cartItem.quantity},#{cartItem.book.bid},#{cartItem.user.uid},#{cartItem.orderBy})
+    </insert>
+    <delete id="deleteCartItem" parameterType="string">
+        delete from t_cartitem where cartitemId = #{cartitemId}
+    </delete>
+    <delete id="delCartItemByCartItemIds" parameterType="string">
+        delete from t_cartitem where cartItemId in 
+        <foreach collection="params" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+    <update id="updateQuantityBycId" parameterType="string">
+        update t_cartitem set quantity = quantity - 1 WHERE cartItemId = #{cid}
+    </update>
+    <select id="loadCartItems" parameterType="string" resultMap="cartItemMap">
+        SELECT * from t_cartitem t inner JOIN t_book b on t.bid = b.bid where cartItemId in
+        <foreach collection="params" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

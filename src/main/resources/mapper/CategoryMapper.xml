@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kaikeba.app.dao.ICategoryDao">
+    <resultMap id="categoryMap" type="Category">
+        <id property="cid" column="cid"/>
+        <result property="cname" column="cname"/>
+        <result property="pid" column="pid"/>
+        <result property="desc" column="desc"/>
+        <result property="orderBy" column="orderBy"/>
+    </resultMap>
+    <select id="listCategorys" resultMap="categoryMap">
+        select * from t_category
+    </select>
+</mapper>

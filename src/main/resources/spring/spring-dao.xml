@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+         http://www.springframework.org/schema/mvc
+         http://www.springframework.org/schema/mvc/spring-mvc.xsd
+         http://www.springframework.org/schema/cache
+         http://www.springframework.org/schema/cache/spring-cache.xsd
+         http://www.springframework.org/schema/tx
+          http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <!--1:配置数据库参数-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <!--2:配置数据库连接池-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <!--基本的连接属性-->
+        <property name="driverClassName" value="${driver}"/>
+        <property name="url" value="${url}"/>
+        <property name="username" value="${user}"/>
+        <property name="password" value="${password}"/>
+        <!--私有属性，不是必须的，但是生产环境下有经过这些参数调优-->
+        <property name="defaultAutoCommit" value="false"/>
+    </bean>
+    <!--配置会话工厂-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--注入数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--注入mybatis的主配置文件-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!--注入可以使用别名的包-->
+        <property name="typeAliasesPackage" value="com.kaikeba.app.entity"/>
+        <!--自动扫描resources/mapper里面的所有的Mapper.xml-->
+        <property name="mapperLocations" value="classpath:mapper/*Mapper.xml"/>
+    </bean>
+    <!--配置扫描DAO层接口，配置了这个类之后就不需要再对接口进行实现(不需要再写接口的实现类)-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--注入会话工厂-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!--DAO层所在的包-->
+        <property name="basePackage" value="com.kaikeba.app.dao"/>
+    </bean>
+    <!--扫描注解类-->
+    <context:component-scan base-package="com.kaikeba.app.dao"/>
+
+
+
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+</beans>
+
